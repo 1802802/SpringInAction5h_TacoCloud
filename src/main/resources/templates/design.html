@@ -3,9 +3,8 @@
 也就是：只要是没有选择的对象，选择表达式与变量表达式的语法是完全一样的。那什么是选择的对象呢？是一个：th:object对象属性绑定的对象。 -->
 <!-- #{}为消息表达式（井号表达式，资源表达式）。通常与th:text属性一起使用，指明声明了th:text的标签的文本是#{}中的key所对应的value，而标签内的文本将不会显示。 -->
 <!-- @{}为超链接url表达式。通常映射静态资源如图片 -->
+<!-- checkbox在渲染时就直接变成了一个选择框，所以其value有无都没有意义 -->
 
-<!-- tag::all[] -->
-<!-- tag::head[] -->
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org" lang="en">
@@ -16,29 +15,21 @@
 
 <body>
 <h1>Design your taco!</h1>
-<img th:src="@{/images/TacoCloud.png}"  alt="taco" src="/static/images/TacoCloud.png"/>
+<img th:src="@{/images/TacoCloud.png}" alt="taco" src="/static/images/TacoCloud.png"/>
 
-<!-- tag::formTag[] -->
-<form method="POST" th:object="${design}">
-    <!-- end::all[] -->
+<form method="POST" th:object="${taco}">
 
     <span class="validationError"
           th:if="${#fields.hasErrors('ingredients')}"
           th:errors="*{ingredients}">Ingredient Error</span>
 
-    <!-- tag::all[] -->
     <div class="grid">
-        <!-- end::formTag[] -->
-        <!-- end::head[] -->
         <div class="ingredient-group" id="wraps">
-            <!-- tag::designateWrap[] -->
             <h3>Designate your wrap:</h3>
             <div th:each="ingredient : ${wrap}">
-                <!-- checkbox在渲染时就直接变成了一个选择框，所以其value有无都没有意义 -->
                 <input name="ingredients" type="checkbox" th:value="${ingredient.id}" />
                 <span th:text="${ingredient.name}">INGREDIENT</span><br/>
             </div>
-            <!-- end::designateWrap[] -->
         </div>
 
         <div class="ingredient-group" id="proteins">
@@ -77,19 +68,13 @@
     <div>
         <h3>Name your taco creation:</h3>
         <input type="text" th:field="*{name}"/>
-        <!-- end::all[] -->
-        <span th:text="${#fields.hasErrors('name')}">XXX</span>
         <span class="validationError"
               th:if="${#fields.hasErrors('name')}"
               th:errors="*{name}">Name Error</span>
-        <!-- tag::all[] -->
         <br/>
 
         <button>Submit your taco</button>
     </div>
-    <!-- tag::closeFormTag[] -->
 </form>
-<!-- end::closeFormTag[] -->
 </body>
 </html>
-<!-- end::all[] -->

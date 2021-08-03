@@ -1,18 +1,26 @@
 package spring.in.action.fifth.tacocloud.web;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import spring.in.action.fifth.tacocloud.Ingredient;
+import spring.in.action.fifth.tacocloud.Order;
 import spring.in.action.fifth.tacocloud.Taco;
+import spring.in.action.fifth.tacocloud.data.IngredientRepository;
+import spring.in.action.fifth.tacocloud.data.TacoRepository;
 
 import javax.validation.Valid;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,27 +29,35 @@ import static spring.in.action.fifth.tacocloud.Ingredient.*;
 @Slf4j
 @Controller
 @RequestMapping("design")
+@SessionAttributes("order")
 public class DesignTacoController {
     private static final String DESIGN_VIEW_NAME = "design";
 
+    private final IngredientRepository ingredientRepository;
+    private final TacoRepository designRepository;
+
+    @Autowired
+    public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository designRepository) {
+        this.ingredientRepository = ingredientRepository;
+        this.designRepository = designRepository;
+    }
+
+    @ModelAttribute(name = "order")
+    public Order order() {
+        return new Order();
+    }
+
+    @ModelAttribute(name = "taco")
+    public Taco taco() {
+        return new Taco();
+    }
+
     @ModelAttribute
     public void addIngredientsToModel(Model model) {
-        List<Ingredient> ingredients = Arrays.asList(
-                new Ingredient("FLTO", "Flour Tortilla", Type.WRAP),
-                new Ingredient("COTO", "Corn Tortilla", Type.WRAP),
-                new Ingredient("GRBF", "Ground Beef", Type.PROTEIN),
-                new Ingredient("CARN", "Carnitas", Type.PROTEIN),
-                new Ingredient("TMTO", "Diced Tomatoes", Type.VEGGIES),
-                new Ingredient("LETC", "Lettuce", Type.VEGGIES),
-                new Ingredient("CHED", "Cheddar", Type.CHEESE),
-                new Ingredient("JACK", "Monterrey Jack", Type.CHEESE),
-                new Ingredient("SLSA", "Salsa", Type.SAUCE),
-                new Ingredient("SRCR", "Sour Cream", Type.SAUCE)
-        );
-
-        for (Type type : Type.values()) {
-            model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
-        }
+        List<Ingredient> ingredients = new ArrayList<>();
+        ingredientRepository.findAll().forEach(ingredients::add);
+        Arrays.stream(Type.values()).forEach(type ->
+                model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type)));
     }
 
     private List<Ingredient> filterByType(List<Ingredient> ingredients, Type type) {
@@ -52,20 +68,19 @@ public class DesignTacoController {
 
     @GetMapping
     public String showDesignForm(Model model) {
-        model.addAttribute(DESIGN_VIEW_NAME, new Taco());
+        log.info(model.toString());
         return DESIGN_VIEW_NAME;
     }
 
     @PostMapping
-    public String processDesign(@Valid @ModelAttribute(DESIGN_VIEW_NAME) Taco designTaco, Errors errors, Model model) {
+    //有坑，在将Taco的ingredients的列表存储对象修改后，需新增Converter，否则一直报错，参考https://www.cnblogs.com/coder-qi/p/10706765.html
+    public String processDesign(@Valid Taco designTaco, Errors errors, @ModelAttribute Order order) {
         if (errors.hasErrors()) {
             return DESIGN_VIEW_NAME;
         }
 
-        // Save the taco design...
-        // We'll do this in chapter 3
-        log.info("Processing design: " + designTaco);
-        log.info("Model: " + model);
+        Taco saved = designRepository.save(designTaco);
+        order.addDesign(saved);
 
         return "redirect:/orders/current";
     }
