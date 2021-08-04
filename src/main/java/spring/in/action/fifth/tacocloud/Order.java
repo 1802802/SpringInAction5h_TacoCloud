@@ -19,7 +19,7 @@ public class Order {
 
     private Date placedAt;
 
-    @NotBlank(message="Name is required")
+    @NotBlank(message="Delivery name is required")
     private String deliveryName;
 
     @NotBlank(message="Street is required")

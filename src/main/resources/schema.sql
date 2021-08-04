@@ -1,8 +1,12 @@
+# 由于我采用了MySql进行数据存储，所以Ingredient的数据是按照id的字母顺序排列的，导致UT过不去。
+# 所以这里新增了自增的pid字段保证存储数据同插入数据，以过UT
 create table if not exists Ingredient (
+                                          pid bigint AUTO_INCREMENT,
                                           id varchar(4) not null,
                                           name varchar(25) not null,
                                           type varchar(10) not null,
-                                              PRIMARY KEY ( `id` )
+                                              PRIMARY KEY ( `pid` ),
+                                              UNIQUE KEY ( `id` )
 );
 
 create table if not exists Taco (

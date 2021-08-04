@@ -1,5 +1,6 @@
 package spring.in.action.fifth.tacocloud;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import java.util.Arrays;
@@ -9,11 +10,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import spring.in.action.fifth.tacocloud.Ingredient.Type;
+import spring.in.action.fifth.tacocloud.data.IngredientRepository;
+import spring.in.action.fifth.tacocloud.data.OrderRepository;
+import spring.in.action.fifth.tacocloud.data.TacoRepository;
 import spring.in.action.fifth.tacocloud.web.DesignTacoController;
 
 @RunWith(SpringRunner.class)
@@ -26,6 +31,15 @@ public class DesignTacoControllerTest {
     private List<Ingredient> ingredients;
 
     private Taco design;
+
+    @MockBean
+    private IngredientRepository ingredientRepository;
+
+    @MockBean
+    private TacoRepository designRepository;
+
+    @MockBean
+    private OrderRepository orderRepository;
 
     @Before
     public void setup() {
@@ -42,12 +56,22 @@ public class DesignTacoControllerTest {
                 new Ingredient("SRCR", "Sour Cream", Type.SAUCE)
         );
 
+        when(ingredientRepository.findAll())
+                .thenReturn(ingredients);
+
+        when(ingredientRepository.findById("FLTO")).thenReturn(new Ingredient("FLTO", "Flour Tortilla", Type.WRAP));
+        when(ingredientRepository.findById("GRBF")).thenReturn(new Ingredient("GRBF", "Ground Beef", Type.PROTEIN));
+        when(ingredientRepository.findById("CHED")).thenReturn(new Ingredient("CHED", "Cheddar", Type.CHEESE));
+
         design = new Taco();
         design.setName("Test Taco");
-        design.setIngredients(Arrays.asList(
+
+        design.setIngredients(
+                Arrays.asList(
                         new Ingredient("FLTO", "Flour Tortilla", Type.WRAP),
                         new Ingredient("GRBF", "Ground Beef", Type.PROTEIN),
                         new Ingredient("CHED", "Cheddar", Type.CHEESE)));
+
     }
 
     @Test
@@ -64,6 +88,9 @@ public class DesignTacoControllerTest {
 
     @Test
     public void processDesign() throws Exception {
+        when(designRepository.save(design))
+                .thenReturn(design);
+
         mockMvc.perform(post("/design")
                         .content("name=Test+Taco&ingredients=FLTO,GRBF,CHED")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED))
