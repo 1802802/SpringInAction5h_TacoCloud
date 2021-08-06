@@ -21,7 +21,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit4.SpringRunner;
 
-//这个Test在我本地跑有问题，clickDesignATaco方法一直抛错，但是另外的单测都没问题，打算以后再来解决这个UT问题
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class DesignAndOrderTacosBrowserTest {
@@ -47,37 +46,50 @@ public class DesignAndOrderTacosBrowserTest {
     }
 
     @Test
-    public void testDesignATacoPage_HappyPath() {
+    public void testDesignATacoPage_HappyPath() throws Exception {
         browser.get(homePageUrl());
         clickDesignATaco();
+        assertLandedOnLoginPage();
+        doRegistration("testuser", "testpassword");
+        assertLandedOnLoginPage();
+        doLogin("testuser", "testpassword");
         assertDesignPageElements();
         buildAndSubmitATaco("Basic Taco", "FLTO", "GRBF", "CHED", "TMTO", "SLSA");
         clickBuildAnotherTaco();
         buildAndSubmitATaco("Another Taco", "COTO", "CARN", "JACK", "LETC", "SRCR");
         fillInAndSubmitOrderForm();
         assertEquals(homePageUrl(), browser.getCurrentUrl());
+        doLogout();
     }
 
     @Test
-    public void testDesignATacoPage_EmptyOrderInfo() {
+    public void testDesignATacoPage_EmptyOrderInfo() throws Exception {
         browser.get(homePageUrl());
         clickDesignATaco();
+        assertLandedOnLoginPage();
+        doRegistration("testuser2", "testpassword");
+        doLogin("testuser2", "testpassword");
         assertDesignPageElements();
         buildAndSubmitATaco("Basic Taco", "FLTO", "GRBF", "CHED", "TMTO", "SLSA");
         submitEmptyOrderForm();
         fillInAndSubmitOrderForm();
         assertEquals(homePageUrl(), browser.getCurrentUrl());
+        doLogout();
     }
 
     @Test
-    public void testDesignATacoPage_InvalidOrderInfo() {
+    public void testDesignATacoPage_InvalidOrderInfo() throws Exception {
         browser.get(homePageUrl());
         clickDesignATaco();
+        assertLandedOnLoginPage();
+        doRegistration("testuser3", "testpassword");
+        doLogin("testuser3", "testpassword");
         assertDesignPageElements();
         buildAndSubmitATaco("Basic Taco", "FLTO", "GRBF", "CHED", "TMTO", "SLSA");
         submitInvalidOrderForm();
         fillInAndSubmitOrderForm();
         assertEquals(homePageUrl(), browser.getCurrentUrl());
+        doLogout();
     }
 
     //
@@ -90,7 +102,40 @@ public class DesignAndOrderTacosBrowserTest {
             browser.findElementByCssSelector("input[value='" + ingredient + "']").click();
         }
         browser.findElementByCssSelector("input#name").sendKeys(name);
-        browser.findElementByCssSelector("form").submit();
+        browser.findElementByCssSelector("form#tacoForm").submit();
+    }
+
+    private void assertLandedOnLoginPage() {
+        assertEquals(loginPageUrl(), browser.getCurrentUrl());
+    }
+
+    private void doRegistration(String username, String password) {
+        browser.findElementByLinkText("here").click();
+        assertEquals(registrationPageUrl(), browser.getCurrentUrl());
+        browser.findElementByName("username").sendKeys(username);
+        browser.findElementByName("password").sendKeys(password);
+        browser.findElementByName("confirm").sendKeys(password);
+        browser.findElementByName("fullname").sendKeys("Test McTest");
+        browser.findElementByName("street").sendKeys("1234 Test Street");
+        browser.findElementByName("city").sendKeys("Testville");
+        browser.findElementByName("state").sendKeys("TX");
+        browser.findElementByName("zip").sendKeys("12345");
+        browser.findElementByName("phone").sendKeys("123-123-1234");
+        browser.findElementByCssSelector("form#registerForm").submit();
+    }
+
+
+    private void doLogin(String username, String password) {
+        browser.findElementByCssSelector("input#username").sendKeys(username);
+        browser.findElementByCssSelector("input#password").sendKeys(password);
+        browser.findElementByCssSelector("form#loginForm").submit();
+    }
+
+    private void doLogout() {
+        WebElement logoutForm = browser.findElementByCssSelector("form#logoutForm");
+        if (logoutForm != null) {
+            logoutForm.submit();
+        }
     }
 
     private void assertDesignPageElements() {
@@ -140,12 +185,18 @@ public class DesignAndOrderTacosBrowserTest {
         fillField("input#ccNumber", "4111111111111111");
         fillField("input#ccExpiration", "10/19");
         fillField("input#ccCVV", "123");
-        browser.findElementByCssSelector("form").submit();
+        browser.findElementByCssSelector("form#orderForm").submit();
     }
 
     private void submitEmptyOrderForm() {
         assertEquals(currentOrderDetailsPageUrl(), browser.getCurrentUrl());
-        browser.findElementByCssSelector("form").submit();
+        // clear fields automatically populated from user profile
+        fillField("input#deliveryName", "");
+        fillField("input#deliveryStreet", "");
+        fillField("input#deliveryCity", "");
+        fillField("input#deliveryState", "");
+        fillField("input#deliveryZip", "");
+        browser.findElementByCssSelector("form#orderForm").submit();
 
         assertEquals(orderDetailsPageUrl(), browser.getCurrentUrl());
 
@@ -179,7 +230,7 @@ public class DesignAndOrderTacosBrowserTest {
         fillField("input#ccNumber", "1234432112344322");
         fillField("input#ccExpiration", "14/91");
         fillField("input#ccCVV", "1234");
-        browser.findElementByCssSelector("form").submit();
+        browser.findElementByCssSelector("form#orderForm").submit();
 
         assertEquals(orderDetailsPageUrl(), browser.getCurrentUrl());
 
@@ -221,6 +272,14 @@ public class DesignAndOrderTacosBrowserTest {
     //
     // URL helper methods
     //
+    private String loginPageUrl() {
+        return homePageUrl() + "login";
+    }
+
+    private String registrationPageUrl() {
+        return homePageUrl() + "register";
+    }
+
     private String designPageUrl() {
         return homePageUrl() + "design";
     }

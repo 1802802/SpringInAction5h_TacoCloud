@@ -15,13 +15,17 @@
 
 <body>
 <h1>Design your taco!</h1>
+<h2>Feelin' hungry, <span th:text="${user.fullname}">NAME</span>?</h2>
 <img th:src="@{/images/TacoCloud.png}" alt="taco" src="/static/images/TacoCloud.png"/>
 
-<form method="POST" th:object="${taco}">
+<form method="POST" th:action="@{/logout}" id="logoutForm">
+    <input type="submit" value="Logout"/>
+</form>
+<form th:method="POST" th:object="${design}" th:action="@{/design}" id="tacoForm">
 
-    <span class="validationError"
-          th:if="${#fields.hasErrors('ingredients')}"
-          th:errors="*{ingredients}">Ingredient Error</span>
+<!--    <span class="validationError"-->
+<!--          th:if="${#fields.hasErrors('ingredients')}"-->
+<!--          th:errors="*{ingredients}">Ingredient Error</span>-->
 
     <div class="grid">
         <div class="ingredient-group" id="wraps">

@@ -1,12 +1,14 @@
 package spring.in.action.fifth.tacocloud.data;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 import spring.in.action.fifth.tacocloud.Ingredient;
 
-public interface IngredientRepository {
+import java.util.Optional;
 
-    Iterable<Ingredient> findAll();
+public interface IngredientRepository extends CrudRepository<Ingredient, String> {
 
-    Ingredient findById(String id);
-
-    Ingredient save(Ingredient ingredient);
+    @Override
+    @Query(value = "from Ingredient where id = ?1")
+    Optional<Ingredient> findById(String s);
 }

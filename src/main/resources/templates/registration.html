@@ -1,0 +1,46 @@
+<!--form的id和name，id是唯一标识，name是控件名字-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Taco Cloud</title>
+</head>
+
+<body>
+<h1>Register</h1>
+<img th:src="@{/images/TacoCloud.png}" alt="taco" src="/static/images/TacoCloud.png"/>
+
+<form method="POST" th:action="@{/register}" id="registerForm">
+
+    <label for="username">Username: </label>
+    <input type="text" name="username" id="username"/><br/>
+
+    <label for="password">Password: </label>
+    <input type="password" name="password" id="password"/><br/>
+
+    <label for="confirm">Confirm password: </label>
+    <input type="password" name="confirm" id="confirm"/><br/>
+
+    <label for="fullname">Full name: </label>
+    <input type="text" name="fullname" id="fullname"/><br/>
+
+    <label for="street">Street: </label>
+    <input type="text" name="street" id="street"/><br/>
+
+    <label for="city">City: </label>
+    <input type="text" name="city" id="city"/><br/>
+
+    <label for="state">State: </label>
+    <input type="text" name="state" id="state"/><br/>
+
+    <label for="zip">Zip: </label>
+    <input type="text" name="zip" id="zip"/><br/>
+
+    <label for="phone">Phone: </label>
+    <input type="text" name="phone" id="phone"/><br/>
+
+    <input type="submit" value="Register"/>
+</form>
+
+</body>
+</html>

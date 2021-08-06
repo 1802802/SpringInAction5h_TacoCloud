@@ -15,7 +15,7 @@ import spring.in.action.fifth.tacocloud.Taco;
 import spring.in.action.fifth.tacocloud.Order;
 
 @Repository
-public class  JdbcOrderRepository implements OrderRepository {
+public class  JdbcOrderRepository {
 
     private final SimpleJdbcInsert orderInserter;
     private final SimpleJdbcInsert orderTacoInserter;
@@ -26,7 +26,6 @@ public class  JdbcOrderRepository implements OrderRepository {
         this.orderTacoInserter = new SimpleJdbcInsert(jdbc).withTableName("Taco_Order_Tacos");
     }
 
-    @Override
     public Order save(Order order) {
         order.setPlacedAt(new Date());
         long orderId = saveOrderDetails(order);
