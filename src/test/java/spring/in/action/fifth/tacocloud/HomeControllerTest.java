@@ -12,6 +12,8 @@ import spring.in.action.fifth.tacocloud.data.IngredientRepository;
 import spring.in.action.fifth.tacocloud.data.OrderRepository;
 import spring.in.action.fifth.tacocloud.data.TacoRepository;
 import spring.in.action.fifth.tacocloud.data.UserRepository;
+import spring.in.action.fifth.tacocloud.web.DiscountCodeProps;
+import spring.in.action.fifth.tacocloud.web.OrderProps;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -45,9 +47,15 @@ public class HomeControllerTest {
     @MockBean
     private PasswordEncoder passwordEncoder;
 
+    @MockBean
+    private DiscountCodeProps discountProps;
+
+    @MockBean
+    private OrderProps orderProps;
+
     @Test
     public void testHomePage() throws Exception {
-        mockMvc.perform(get("/abc"))
+        mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("home"))
                 .andExpect(content().string(

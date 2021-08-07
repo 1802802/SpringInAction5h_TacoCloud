@@ -23,9 +23,9 @@
 </form>
 <form th:method="POST" th:object="${design}" th:action="@{/design}" id="tacoForm">
 
-<!--    <span class="validationError"-->
-<!--          th:if="${#fields.hasErrors('ingredients')}"-->
-<!--          th:errors="*{ingredients}">Ingredient Error</span>-->
+    <span class="validationError"
+          th:if="${#fields.hasErrors('ingredients')}"
+          th:errors="*{ingredients}">Ingredient Error</span>
 
     <div class="grid">
         <div class="ingredient-group" id="wraps">

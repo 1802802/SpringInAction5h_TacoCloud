@@ -103,6 +103,9 @@ public class DesignTacoControllerTest {
         when(designRepository.save(design))
                 .thenReturn(design);
 
+        when(userRepository.findByUsername("testuser"))
+                .thenReturn(new User("testuser", "testpass", "Test User", "123 Street", "Someville", "CO", "12345", "123-123-1234"));
+
         mockMvc.perform(post("/design").with(csrf())
                         .content("name=Test+Taco&ingredients=FLTO,GRBF,CHED")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED))
