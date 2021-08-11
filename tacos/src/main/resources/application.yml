@@ -1,0 +1,37 @@
+security:
+  user:
+    name: buzz
+    password: infinity
+
+taco:
+  orders:
+    pageSize: 10
+
+
+  discount:
+    codes:
+      abcdef: 10
+      
+#logging:
+#  level:
+#    org.springframework.data.rest: debug
+
+spring:
+  data:
+    rest:
+      base-path: /api
+
+---
+spring:
+  profiles: prod
+
+datasource:
+  url: jdbc:mysql://localhost:3306/TacoCloud
+  username: root
+  password: yang123456
+  driver-class-name: com.mysql.jdbc.Driver
+
+logging:
+  level:
+    tacos: WARN
+    
